@@ -1,0 +1,151 @@
+/**
+ * Sass Mixins and Functions
+ */
+
+// Calculate em from font-size
+@function em($pixels, $context: $font-size-base) {
+    @if (unitless($pixels)) {
+        $pixels: $pixels * 1px;
+    }
+
+    @if (unitless($context)) {
+        $context: $context * 1px;
+    }
+
+    @return ($pixels / $context) * 1em;
+}
+
+// Calculate % from a value
+@function calc-percent($target, $container) {
+    @return ($target / $container) * 100%;
+}
+
+// Shortcut for calc-percent()
+@function cp($target, $container) {
+    @return calc-percent($target, $container);
+}
+
+// Function to remove unit from number
+@function strip-units($number) {
+    @return $number / ($number * 0 + 1);
+}
+
+// Mixin for media queries
+@mixin breakpoint($breakpoint) {
+    @if map-get($breakpoints, $breakpoint) {
+        @media (max-width: em(map-get($breakpoints, $breakpoint), $font-size-root)) {
+            @content;
+        }
+    } @else {
+        @media (max-width: em($breakpoint*1px, $font-size-root)) {
+            @content;
+        }
+    }
+}
+
+@mixin breakpoint-min($breakpoint) {
+    @if map-get($breakpoints, $breakpoint) {
+        @media (min-width: em(map-get($breakpoints, $breakpoint), $font-size-root)) {
+            @content;
+        }
+    } @else {
+        @media (min-width: em($breakpoint*1px, $font-size-root)) {
+            @content;
+        }
+    }
+}
+
+//
+//  Function to create an optimized svg url
+//  https://codepen.io/jakob-e/full/doMoML/
+//
+@function svg-url($svg) {
+    //
+    //  Add missing namespace
+    //
+    @if not str-index($svg, xmlns) {
+        $svg: str-replace($svg, '<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    //
+    //  Chunk up string in order to avoid
+    //  "stack level too deep" error
+    //
+    $encoded: '';
+    $slice: 2000;
+    $index: 0;
+    $loops: ceil(str-length($svg) / $slice);
+    @for $i from 1 through $loops {
+        $chunk: str-slice($svg, $index, $index + $slice - 1);
+        //
+        //   Encode
+        //
+        $chunk: str-replace($chunk, '"', "'");
+        $chunk: str-replace($chunk, '%', '%25');
+        $chunk: str-replace($chunk, '#', '%23');
+        $chunk: str-replace($chunk, '{', '%7B');
+        $chunk: str-replace($chunk, '}', '%7D');
+        $chunk: str-replace($chunk, '<', '%3C');
+        $chunk: str-replace($chunk, '>', '%3E');
+
+        //
+        //    The maybe list
+        //
+        //    Keep size and compile time down
+        //    ... only add on documented fail
+        //
+        //  $chunk: str-replace($chunk, '&', '%26');
+        //  $chunk: str-replace($chunk, '|', '%7C');
+        //  $chunk: str-replace($chunk, '[', '%5B');
+        //  $chunk: str-replace($chunk, ']', '%5D');
+        //  $chunk: str-replace($chunk, '^', '%5E');
+        //  $chunk: str-replace($chunk, '`', '%60');
+        //  $chunk: str-replace($chunk, ';', '%3B');
+        //  $chunk: str-replace($chunk, '?', '%3F');
+        //  $chunk: str-replace($chunk, ':', '%3A');
+        //  $chunk: str-replace($chunk, '@', '%40');
+        //  $chunk: str-replace($chunk, '=', '%3D');
+
+        $encoded: #{$encoded}#{$chunk};
+        $index: $index + $slice;
+    }
+    @return url('data:image/svg+xml,#{$encoded}');
+}
+
+//  Background svg mixin
+@mixin background-svg($svg) {
+    background-image: svg-url($svg);
+}
+
+//  Helper function to replace characters in a string
+@function str-replace($string, $search, $replace: '') {
+    $index: str-index($string, $search);
+    @return if(
+        $index,
+        str-slice($string, 1, $index - 1) + $replace +
+        str-replace(str-slice($string, $index + str-length($search)), $search, $replace),
+        $string
+    );
+}
+
+@function strip-unit($value) {
+    @return $value / ($value * 0 + 1);
+}
+
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+    $u1: unit($min-vw);
+    $u2: unit($max-vw);
+    $u3: unit($min-font-size);
+    $u4: unit($max-font-size);
+
+    @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+        & {
+            font-size: $min-font-size;
+            @media screen and (min-width: $min-vw) {
+                font-size: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+            }
+            @media screen and (min-width: $max-vw) {
+                font-size: $max-font-size;
+            }
+        }
+    }
+}

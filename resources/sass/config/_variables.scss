@@ -1,0 +1,28 @@
+// Fonts
+$app-font-primary: arial, sans-serif;
+
+$font-size-root: 1em;
+$font-size-base: 1rem;
+
+// Colors Bootstrap Overwrite example
+// $theme-colors: (
+//     "primary": #033F85,
+//     "secondary": #E74F3D,
+//     "danger": #ff4136
+// );
+
+$color-white: #fff;
+$color-details: #009490;
+$color-light: #DCE3EB;
+$color-bg-light: #E5E5E5;
+$color-black: #333;
+$color-light-black: #828282;
+
+// Media query breakpoints
+$breakpoints: (
+    xs: 480px,
+    sm: 768px,
+    md: 992px,
+    lg: 1200px,
+    xl: 1440px
+);

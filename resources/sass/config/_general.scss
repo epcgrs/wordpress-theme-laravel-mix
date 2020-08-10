@@ -1,0 +1,25 @@
+* {
+    font-family:  $app-font-primary;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    width: 100%;
+    margin: 0;
+}
+
+#app {
+    position: relative;
+}
+
+a, button, img {
+    outline: none !important;
+}
+a:hover, a:active, a:focus {
+    outline: none !important;
+}
+input::-moz-focus-inner {
+    border: none !important;
+}

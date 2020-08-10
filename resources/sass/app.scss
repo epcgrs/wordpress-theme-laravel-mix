@@ -1,6 +1,9 @@
 // Configs
+@import './config/variables';
 @import './config/vendor';
-
+@import './config/utils';
+@import './config/fonts';
+@import './config/general';
 
 // Pages
 @import './pages/home';
